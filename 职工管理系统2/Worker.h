@@ -8,9 +8,11 @@ class Worker
 {
 public:
 
-	virtual void showInfo() = 0;
+	virtual ~Worker() = default;
 
-	virtual string getDepName() = 0;
+	virtual void showInfo() const = 0;
+
+	virtual string getDepName() const = 0;
 
 	int m_ID;
 	string m_Name;

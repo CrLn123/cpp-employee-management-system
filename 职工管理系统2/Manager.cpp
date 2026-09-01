@@ -9,15 +9,15 @@ Manager::Manager(int id, string name, int depId)
 	this->m_DepId = depId;
 }
 
-void Manager::showInfo()
+void Manager::showInfo() const
 {
-	cout << "Ö°¹¤±àºÅ£º" << this->m_ID
-		<< "\tÖ°¹¤ÐÕÃû£º" << this->m_Name
-		<< "\t¸ÚÎ»£º" << this->getDepName()
-		<< "\t¸ÚÎ»Ö°Îñ£ºÍê³ÉÀÏ°å½»¸øµÄÈÎÎñ£¬¸øÔ±¹¤ÏÂ·¢ÈÎÎñ" << endl;
+	cout << "èŒå·¥ç¼–å·ï¼š" << this->m_ID
+		<< "\tèŒå·¥å§“åï¼š" << this->m_Name
+		<< "\tå²—ä½ï¼š" << this->getDepName()
+		<< "\tå²—ä½èŒåŠ¡ï¼šå®Œæˆè€æ¿äº¤ç»™çš„ä»»åŠ¡ï¼Œç»™å‘˜å·¥ä¸‹å‘ä»»åŠ¡" << endl;
 }
 
-string Manager::getDepName()
+string Manager::getDepName() const
 {
-	return string("¾­Àí");
+	return string("ç»ç†");
 }

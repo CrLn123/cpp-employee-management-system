@@ -9,7 +9,7 @@ public:
 
 	Manager(int id, string name, int depId);
 
-	virtual void showInfo();
+	virtual void showInfo() const;
 
-	virtual string getDepName();
+	virtual string getDepName() const;
 };

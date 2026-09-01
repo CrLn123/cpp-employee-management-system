@@ -1,556 +1,352 @@
 #include "workManager.h"
-#include "Worker.h"
+
+#include <algorithm>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <limits>
+
+#include "Boss.h"
+#include "Employee.h"
+#include "Manager.h"
+
+namespace
+{
+    const char* const kWorkerFile = "èŒå·¥åå•.txt";
+
+    void clearInput()
+    {
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
+
+    bool readInt(const std::string& prompt, int& value)
+    {
+        std::cout << prompt;
+        if (std::cin >> value)
+        {
+            return true;
+        }
+
+        std::cout << "è¾“å…¥å¿…é¡»æ˜¯æ•´æ•°ï¼Œè¯·é‡æ–°è¾“å…¥ã€‚" << std::endl;
+        clearInput();
+        return false;
+    }
+
+    std::string readName()
+    {
+        std::string name;
+        std::cout << "è¯·è¾“å…¥èŒå·¥å§“åï¼š";
+        std::getline(std::cin >> std::ws, name);
+        return name;
+    }
+}
 
 WorkManager::WorkManager()
 {
-	ifstream ifs;
-
-	ifs.open("Ö°¹¤Ãûµ¥.txt", ios::in);
-
-	if (!ifs.is_open())
-	{
-		cout << "ÎÄ¼ş²»´æÔÚ" << endl;
-		this->workerArray = NULL;
-		this->workerNum = 0;
-		this->fileIsEmp = true;
-		ifs.close();
-		return;
-	}
-
-	char ch;
-	ifs >> ch;
-	if (ifs.eof())
-	{
-		cout << "ÎÄ¼şÎª¿Õ" << endl;
-		this->workerArray = NULL;
-		this->workerNum = 0;
-		this->fileIsEmp = true;
-		ifs.close();
-		return;
-	}
-	
-	ifs.close();
-
-	readFile();
-
+    readFile();
 }
 
-
-
-void WorkManager::Show_Menu()
+void WorkManager::Show_Menu() const
 {
-	cout << "********************************" << endl;
-	cout << "******»¶Ó­Ê¹ÓÃÖ°¹¤¹ÜÀíÏµÍ³******" << endl;
-	cout << "*********0.ÍÆ³ö¹ÜÀíÏµÍ³*********" << endl;
-	cout << "*********1.Ôö¼ÓÖ°¹¤ĞÅÏ¢*********" << endl;
-	cout << "*********2.ÏÔÊ¾Ö°¹¤ĞÅÏ¢*********" << endl;
-	cout << "*********3.É¾³ıÖ°¹¤ĞÅÏ¢*********" << endl;
-	cout << "*********4.ĞŞ¸ÄÖ°¹¤ĞÅÏ¢*********" << endl;
-	cout << "*********5.²éÕÒÖ°¹¤ĞÅÏ¢*********" << endl;
-	cout << "*********6.°´ÕÕ±àºÅÅÅĞò*********" << endl;
-	cout << "*********7.Çå¿ÕËùÓĞÎÄµµ*********" << endl;
-	cout << "********************************" << endl;
+    std::cout << "********************************" << std::endl;
+    std::cout << "****** æ¬¢è¿ä½¿ç”¨èŒå·¥ç®¡ç†ç³»ç»Ÿ ******" << std::endl;
+    std::cout << "********* 0. é€€å‡ºç®¡ç†ç³»ç»Ÿ ********" << std::endl;
+    std::cout << "********* 1. å¢åŠ èŒå·¥ä¿¡æ¯ ********" << std::endl;
+    std::cout << "********* 2. æ˜¾ç¤ºèŒå·¥ä¿¡æ¯ ********" << std::endl;
+    std::cout << "********* 3. åˆ é™¤èŒå·¥ä¿¡æ¯ ********" << std::endl;
+    std::cout << "********* 4. ä¿®æ”¹èŒå·¥ä¿¡æ¯ ********" << std::endl;
+    std::cout << "********* 5. æŸ¥æ‰¾èŒå·¥ä¿¡æ¯ ********" << std::endl;
+    std::cout << "********* 6. æŒ‰ç¼–å·æ’åº **********" << std::endl;
+    std::cout << "********* 7. æ¸…ç©ºæ‰€æœ‰æ–‡æ¡£ ********" << std::endl;
+    std::cout << "********************************" << std::endl;
 }
 
-void WorkManager::exitSystem()
+void WorkManager::exitSystem() const
 {
-	cout << "»¶Ó­ÏÂ´ÎÊ¹ÓÃ£¡" << endl;
-	system("pause");
-	exit(0); //³ÌĞòÖ±½ÓÍË³ö
+    std::cout << "æ¬¢è¿ä¸‹æ¬¡ä½¿ç”¨ï¼" << std::endl;
 }
 
 void WorkManager::addWorker()
 {
-	cout << "ÇëÊäÈëÌí¼ÓÊıÁ¿" << endl;
-	int addWorkerNum;
-	cin >> addWorkerNum;
-	int newSize = this->workerNum + addWorkerNum;
+    int count = 0;
+    while (!readInt("è¯·è¾“å…¥è¦æ·»åŠ çš„èŒå·¥æ•°é‡ï¼š", count) || count <= 0)
+    {
+        if (count <= 0)
+        {
+            std::cout << "æ•°é‡å¿…é¡»å¤§äº 0ã€‚" << std::endl;
+        }
+    }
 
-	Worker** newSpace = new Worker * [newSize];
+    for (int i = 0; i < count; ++i)
+    {
+        int id = 0;
+        do
+        {
+            while (!readInt("è¯·è¾“å…¥ç¬¬ " + std::to_string(i + 1) + " ä½èŒå·¥çš„ IDï¼š", id)) {}
+            if (idExists(id))
+            {
+                std::cout << "ID å·²å­˜åœ¨ï¼Œè¯·ä½¿ç”¨æ–°çš„ IDã€‚" << std::endl;
+            }
+        } while (idExists(id));
 
-	if (this->workerArray != NULL)
-	{
-		for (int i = 0; i < workerNum; i++)
-		{
-			newSpace[i] = workerArray[i];
-		}
-	}
+        const std::string name = readName();
+        int depId = 0;
+        std::unique_ptr<Worker> worker;
+        while (!worker)
+        {
+            while (!readInt("è¯·è¾“å…¥å²—ä½ç¼–å·ï¼ˆ1-è€æ¿ï¼Œ2-ç»ç†ï¼Œ3-å‘˜å·¥ï¼‰ï¼š", depId)) {}
+            worker = createWorker(id, name, depId);
+            if (!worker)
+            {
+                std::cout << "å²—ä½ç¼–å·åªèƒ½æ˜¯ 1ã€2 æˆ– 3ã€‚" << std::endl;
+            }
+        }
+        workers.push_back(std::move(worker));
+    }
 
-	delete[] workerArray;
-
-	for (int i = 1; i <= addWorkerNum; i++)
-	{
-		FLAG1:
-		int id = 0;
-		string name;
-		int depId;
-		cout << "ÇëÊäÈëĞÂÔöµÚ" << i << "Î»Ö°¹¤µÄID£º" << endl;
-		cin >> id;
-		cout << "ÇëÊäÈëĞÂÔöµÚ" << i << "Î»Ö°¹¤µÄĞÕÃû£º" << endl;
-		cin >> name;
-		cout << "ÇëÊäÈëĞÂÔöµÚ" << i << "Î»Ö°¹¤µÄÖ°Î»´úÂë£º" << endl;
-		cin >> depId;
-		if (depId == 1)
-		{
-			newSpace[workerNum + i - 1] = new Boss(id, name, depId);
-		}
-		else if (depId == 2)
-		{
-			newSpace[workerNum + i - 1] = new Manager(id, name, depId);
-		}
-		else if (depId == 3)
-		{
-			newSpace[workerNum + i - 1] = new Employee(id, name, depId);
-		}
-		else
-		{
-			cout << "ÊäÈë´íÎó" << endl;
-			goto FLAG1;
-		}
-	}
-    
-	this->workerArray = newSpace;
-
-	this->workerNum = newSize;
-
-	this->fileIsEmp = false;
-
-	writeFile();
-
-	cout << "³É¹¦Ìí¼Ó" << addWorkerNum << "ÃûĞÂÖ°¹¤" << endl;
-
-	system("pause");
+    writeFile();
+    std::cout << "æˆåŠŸæ·»åŠ  " << count << " ä½èŒå·¥ã€‚" << std::endl;
 }
 
-void WorkManager::writeFile()
+void WorkManager::writeFile() const
 {
-	ofstream ofs;
-    
-	ofs.open("Ö°¹¤Ãûµ¥.txt", ios::out);
+    std::ofstream output(kWorkerFile, std::ios::out | std::ios::trunc);
+    if (!output)
+    {
+        std::cout << "æ— æ³•å†™å…¥èŒå·¥æ–‡ä»¶ã€‚" << std::endl;
+        return;
+    }
 
-	for (int i = 0; i < workerNum; i++)
-	{
-		ofs  << workerArray[i]->m_ID << " "
-			 << workerArray[i]->m_Name << " "
-			 << workerArray[i]->m_DepId << endl;
-	}
-
-	ofs.close();
-	
-}
-
-int WorkManager::getWorkerNum()
-{
-	ifstream ifs;
-
-	ifs.open("Ö°¹¤Ãûµ¥.txt", ios::in);
-
-	int id;
-	string name;
-	int depId;
-
-	int num = 0;
-
-	while (ifs >> id && ifs >> name && ifs >> depId)
-	{
-		num++;
-		this->fileIsEmp = false;
-	}
-
-	ifs.close();
-
-	return num;
+    for (const auto& worker : workers)
+    {
+        output << worker->m_ID << ' ' << std::quoted(worker->m_Name) << ' ' << worker->m_DepId << '\n';
+    }
 }
 
 void WorkManager::readFile()
 {
-	int num = getWorkerNum();
+    std::ifstream input(kWorkerFile);
+    if (!input)
+    {
+        return;
+    }
 
-	workerNum = getWorkerNum();
-
-	workerArray = new Worker * [num];
-
-	ifstream ifs;
-
-	ifs.open("Ö°¹¤Ãûµ¥.txt", ios::in);
-
-	int id;
-	string name;
-	int depId;
-
-	int n = 0;
-	while (ifs >> id && ifs >> name && ifs >> depId)
-	{
-		Worker* worker = NULL;
-		if (depId == 1)
-		{
-			worker = new Boss(id, name, depId);
-		}
-		else if (depId == 2)
-		{
-			worker = new Manager(id, name, depId);
-		}
-		else if (depId == 3)
-		{
-			worker = new Employee(id, name, depId);
-		}
-		this->workerArray[n] = worker;
-
-		n++;
-	}
-
-
-	ifs.close();
+    int id = 0;
+    int depId = 0;
+    std::string name;
+    while (input >> id >> std::quoted(name) >> depId)
+    {
+        std::unique_ptr<Worker> worker = createWorker(id, name, depId);
+        if (!worker || idExists(id))
+        {
+            std::cout << "å·²è·³è¿‡ä¸€æ¡æ— æ•ˆæˆ–é‡å¤ ID çš„èŒå·¥è®°å½•ã€‚" << std::endl;
+            continue;
+        }
+        workers.push_back(std::move(worker));
+    }
 }
 
-void WorkManager::showWorker()
+void WorkManager::showWorker() const
 {
-	if (fileIsEmp)
-	{
-		cout << "ÔİÎŞÖ°¹¤" << endl;
-		return;
-	}
-	for (int i = 0; i < workerNum; i++)
-	{
-		
-		workerArray[i]->showInfo();
-	}
-	
+    if (workers.empty())
+    {
+        std::cout << "å½“å‰æ²¡æœ‰èŒå·¥ä¿¡æ¯ã€‚" << std::endl;
+        return;
+    }
+
+    for (const auto& worker : workers)
+    {
+        worker->showInfo();
+    }
 }
 
 void WorkManager::deleteWorker()
 {
-	if (fileIsEmp)
-	{
-		cout << "ÔİÎŞÖ°¹¤" << endl;
-		system("pause");
-		return;
-	}
+    if (workers.empty())
+    {
+        std::cout << "å½“å‰æ²¡æœ‰èŒå·¥ä¿¡æ¯ã€‚" << std::endl;
+        return;
+    }
 
-	cout << "ÄãÒªÉ¾³ı¼¸Î»Ö°¹¤£º" << endl;
-	int num = 0;
-	cin >> num;
-	if (num > this->workerNum)
-	{
-		cout << "ÊäÈë´æÔÚÎÊÌâ" << endl;
-		return;
-	}
+    int id = 0;
+    while (!readInt("è¯·è¾“å…¥è¦åˆ é™¤çš„èŒå·¥ IDï¼š", id)) {}
 
-	cout << "ÇëÑ¡ÔñÉ¾³ı·½Ê½ 1.Í¨¹ıIDÉ¾³ı 2.Í¨¹ıĞÕÃûÉ¾³ı" << endl;
-	int select = 0;
-	
-	FLAG1:
-	cin >> select;
-	switch (select)
-	{
-	case 1:
-		for (int i = 1; i <= num; i++)
-		{
-			showWorker();
-			cout << "ÇëÊäÈëµÚ" << i << "¸öÈËµÄID" << endl;
-			
-			int tempID = 0;
-			cin >> tempID;
+    const int index = findWorkerIndexById(id);
+    if (index == -1)
+    {
+        std::cout << "æœªæ‰¾åˆ°è¯¥ ID çš„èŒå·¥ã€‚" << std::endl;
+        return;
+    }
 
-			int jc = 0;
-			for (int m = 0; m < workerNum; m++)
-			{
-				if (this->workerArray[m]->m_ID == tempID)
-				{				
-					jc++;
-				}
-			}
-			if (jc == 0)
-			{
-				cout << "²»´æÔÚ" << endl;
-				system("pause");
-				break;
-			}
-
-			int n = 0;
-			Worker** newSpace = new Worker * [workerNum - 1];
-			for (int j = 0; j < workerNum; j++)
-			{
-				if (workerArray[j]->m_ID != tempID)
-				{
-					newSpace[n] = workerArray[j];
-					n++;
-				}
-			}
-			delete[] workerArray;
-			workerArray = newSpace;
-		    workerNum--;
-		}
-		
-		writeFile();
-		cout << "É¾³ı³É¹¦" << endl;
-		system("pause");
-		break;
-
-
-	case 2:
-		for (int i = 1; i <= num; i++)
-		{
-			showWorker();
-			cout << "ÇëÊäÈëµÚ" << i << "¸öÈËµÄĞÕÃû" << endl;
-
-			string tempName;
-			cin >> tempName;
-
-			int jc = 0;
-			for (int m = 0; m < workerNum; m++)
-			{
-				if (this->workerArray[m]->m_Name == tempName)
-				{
-					jc++;
-				}
-			}
-			if (jc == 0)
-			{
-				cout << "²»´æÔÚ" << endl;
-				system("pause");
-				break;
-			}
-
-			int n = 0;
-			Worker** newSpace = new Worker * [workerNum - 1];
-			for (int j = 0; j < workerNum; j++)
-			{
-				if (workerArray[j]->m_Name != tempName)
-				{
-					newSpace[n] = workerArray[j];
-					n++;
-				}
-			}
-			delete[] workerArray;
-			workerArray = newSpace;
-			workerNum--;
-		}
-
-		writeFile();
-		cout << "É¾³ı³É¹¦" << endl;
-		system("pause");
-		break;
-
-	default:
-		cout << "ÊäÈë´íÎó" << endl;
-		system("pause");
-		goto FLAG1;
-	}
+    workers.erase(workers.begin() + index);
+    writeFile();
+    std::cout << "åˆ é™¤æˆåŠŸã€‚" << std::endl;
 }
 
 void WorkManager::changeWorker()
 {
-	if (fileIsEmp)
-	{
-		cout << "ÔİÎŞÖ°¹¤" << endl;
-		return;
-	}
+    if (workers.empty())
+    {
+        std::cout << "å½“å‰æ²¡æœ‰èŒå·¥ä¿¡æ¯ã€‚" << std::endl;
+        return;
+    }
 
-	showWorker();
+    int oldId = 0;
+    while (!readInt("è¯·è¾“å…¥è¦ä¿®æ”¹çš„èŒå·¥åŸ IDï¼š", oldId)) {}
+    const int index = findWorkerIndexById(oldId);
+    if (index == -1)
+    {
+        std::cout << "æœªæ‰¾åˆ°è¯¥ ID çš„èŒå·¥ã€‚" << std::endl;
+        return;
+    }
 
-	cout << "ÇëÊäÈëÒªĞŞ¸ÄµÄÔ±¹¤µÄÔ­Ê¼ID£º" << endl;
-	int id;
-	cin >> id;
-	
+    int newId = 0;
+    do
+    {
+        while (!readInt("è¯·è¾“å…¥ä¿®æ”¹åçš„ IDï¼š", newId)) {}
+        if (newId != oldId && idExists(newId))
+        {
+            std::cout << "ID å·²å­˜åœ¨ï¼Œè¯·ä½¿ç”¨æ–°çš„ IDã€‚" << std::endl;
+        }
+    } while (newId != oldId && idExists(newId));
 
-	int jc = 0;
-	for (int m = 0; m < workerNum; m++)
-	{
-		if (this->workerArray[m]->m_ID == id)
-		{
-			jc++;
-		}
-	}
-	if (jc == 0)
-	{
-		cout << "²»´æÔÚ" << endl;
-		system("pause");
-		return;
-	}
+    const std::string newName = readName();
+    int depId = 0;
+    std::unique_ptr<Worker> replacement;
+    while (!replacement)
+    {
+        while (!readInt("è¯·è¾“å…¥ä¿®æ”¹åçš„å²—ä½ç¼–å·ï¼ˆ1-è€æ¿ï¼Œ2-ç»ç†ï¼Œ3-å‘˜å·¥ï¼‰ï¼š", depId)) {}
+        replacement = createWorker(newId, newName, depId);
+        if (!replacement)
+        {
+            std::cout << "å²—ä½ç¼–å·åªèƒ½æ˜¯ 1ã€2 æˆ– 3ã€‚" << std::endl;
+        }
+    }
 
-
-	for (int i = 0; i < this->workerNum; i++)
-	{
-		if (workerArray[i]->m_ID == id)
-		{
-			delete workerArray[i];
-			workerArray[i] = NULL;
-			cout << "ÇëÊäÈëĞŞ¸ÄºóID" << endl;
-			int new_ID;
-			cin >> new_ID;
-			cout << "ÇëÊäÈëĞŞ¸ÄºóĞÕÃû" << endl;
-			string new_Name;
-			cin >> new_Name;
-			cout << "ÇëÊäÈëĞŞ¸ÄºóÖ°Î»´úÂë" << endl;
-			int new_depId;
-			cin >> new_depId;
-
-			if (new_depId == 1)
-			{
-				workerArray[i] = new Boss(new_ID, new_Name, new_depId);
-			}
-			if (new_depId == 2)
-			{
-				workerArray[i] = new Manager(new_ID, new_Name, new_depId);
-			}
-			if (new_depId == 3)
-			{
-				workerArray[i] = new Employee(new_ID, new_Name, new_depId);
-			}
-			else
-			{
-				cout << "ÊäÈë´íÎó" << endl;
-				return;
-			}
-		}
-		writeFile();
-		cout << "ĞŞ¸Ä³É¹¦" << endl;
-	}
-	
+    // å…ˆæ„é€ å¹¶æ ¡éªŒæ–°å¯¹è±¡ï¼Œæœ€åæ‰æ›¿æ¢æ—§å¯¹è±¡ï¼Œé¿å…éæ³•è¾“å…¥ç ´ååŸæ•°æ®ã€‚
+    workers[index] = std::move(replacement);
+    writeFile();
+    std::cout << "ä¿®æ”¹æˆåŠŸã€‚" << std::endl;
 }
 
-void WorkManager::findWorker()
+void WorkManager::findWorker() const
 {
-	if (fileIsEmp)
-	{
-		cout << "ÔİÎŞÖ°¹¤" << endl;
-		return;
-	}
-	cout << "ÇëÊäÈë²éÕÒ·½Ê½£º 1.Í¨¹ıID  2.Í¨¹ıĞÕÃû" << endl;
-	int select1;
-	cin >> select1;
+    if (workers.empty())
+    {
+        std::cout << "å½“å‰æ²¡æœ‰èŒå·¥ä¿¡æ¯ã€‚" << std::endl;
+        return;
+    }
 
-	if (select1 == 1)
-	{
-		cout << "ÇëÊäÈëID²éÕÒ" << endl;
-		int u_ID;
-		cin >> u_ID;
+    int choice = 0;
+    while (!readInt("è¯·é€‰æ‹©æŸ¥æ‰¾æ–¹å¼ï¼ˆ1-IDï¼Œ2-å§“åï¼‰ï¼š", choice)) {}
 
-		int temp = 0;
-
-		for (int i = 0; i < this->workerNum; i++)
-		{
-			if (workerArray[i]->m_ID == u_ID)
-			{
-				workerArray[i]->showInfo();
-				temp++;
-			}
-		}
-
-		if (temp == 0)
-		{
-			cout << "Î´²éµ½" << endl;
-		}
-	}
-
-	if (select1 == 2)
-	{
-		cout << "ÇëÊäÈëĞÕÃû²éÕÒ" << endl;
-		string u_Name;
-		cin >> u_Name;
-
-		int temp = 0;
-
-		for (int i = 0; i < this->workerNum; i++)
-		{
-			if (workerArray[i]->m_Name == u_Name)
-			{
-				workerArray[i]->showInfo();
-				temp++;
-			}
-		}
-
-		if (temp == 0)
-		{
-			cout << "Î´²éµ½" << endl;
-		}
-	}
-
-	else
-	{
-		cout << "ÊäÈë´íÎó" << endl;
-	}
+    if (choice == 1)
+    {
+        int id = 0;
+        while (!readInt("è¯·è¾“å…¥èŒå·¥ IDï¼š", id)) {}
+        const int index = findWorkerIndexById(id);
+        if (index == -1)
+        {
+            std::cout << "æœªæ‰¾åˆ°è¯¥èŒå·¥ã€‚" << std::endl;
+            return;
+        }
+        workers[index]->showInfo();
+    }
+    else if (choice == 2)
+    {
+        const std::string name = readName();
+        bool found = false;
+        for (const auto& worker : workers)
+        {
+            if (worker->m_Name == name)
+            {
+                worker->showInfo();
+                found = true;
+            }
+        }
+        if (!found)
+        {
+            std::cout << "æœªæ‰¾åˆ°è¯¥èŒå·¥ã€‚" << std::endl;
+        }
+    }
+    else
+    {
+        std::cout << "æŸ¥æ‰¾æ–¹å¼åªèƒ½æ˜¯ 1 æˆ– 2ã€‚" << std::endl;
+    }
 }
 
 void WorkManager::sortWorker()
 {
-	if (fileIsEmp)
-	{
-		cout << "ÔİÎŞÖ°¹¤" << endl;
-		return;
-	}
-	int basic = 0;
-	Worker* temp = NULL;
-	for (int i = 0; i < this->workerNum; i++)
-	{
-		for (int j = i; j < this->workerNum; j++)
-		{
-			if (workerArray[j]->m_ID < workerArray[basic]->m_ID)
-			{
-				temp = workerArray[j];
-				workerArray[j] = workerArray[basic];
-				workerArray[basic] = temp;
-				temp = NULL;
-			}
-		}
-		basic++;
-	}
-	cout << "ÅÅĞò³É¹¦" << endl;
-	writeFile();	
-	showWorker();
+    if (workers.empty())
+    {
+        std::cout << "å½“å‰æ²¡æœ‰èŒå·¥ä¿¡æ¯ã€‚" << std::endl;
+        return;
+    }
+
+    std::sort(workers.begin(), workers.end(), [](const std::unique_ptr<Worker>& left, const std::unique_ptr<Worker>& right)
+    {
+        return left->m_ID < right->m_ID;
+    });
+    writeFile();
+    std::cout << "æ’åºæˆåŠŸã€‚" << std::endl;
+    showWorker();
 }
 
 void WorkManager::clearWorker()
 {
-	if (fileIsEmp)
-	{
-		cout << "ÔİÎŞÖ°¹¤" << endl;
-		return;
-	}
-	
-	cout << "ÇëÎÊÊÇ·ñÈ·ÈÏÇå¿Õ£º 1.È·ÈÏ 2.·ÅÆú" << endl;
-	int select;
-	cin >> select;
-	ofstream ofs;
+    if (workers.empty())
+    {
+        std::cout << "å½“å‰æ²¡æœ‰èŒå·¥ä¿¡æ¯ã€‚" << std::endl;
+        return;
+    }
 
-	switch (select)
-	{
-	case 1:
-		
-		ofs.open("Ö°¹¤Ãûµ¥.txt", ios::trunc);
-		ofs.close();
-
-		for (int i = 0; i < this->workerNum; i++)
-		{
-			if (this->workerArray[i] != NULL)
-			{
-				delete workerArray[i];
-			}
-		}
-		delete[] this->workerArray;
-		workerArray = NULL;
-		workerNum = 0;
-		fileIsEmp = true;
-		cout << "Çå³ı³É¹¦" << endl;
-		break;
-	
-	case 2:
-		break;
-	
-	default:
-		cout << "ÊäÈë´íÎó" << endl;
-		break;
-	}
-	
-	
+    int choice = 0;
+    while (!readInt("ç¡®å®šæ¸…ç©ºæ‰€æœ‰èŒå·¥å—ï¼Ÿ1-ç¡®å®šï¼Œ2-å–æ¶ˆï¼š", choice)) {}
+    if (choice == 1)
+    {
+        workers.clear();
+        writeFile();
+        std::cout << "æ¸…ç©ºæˆåŠŸã€‚" << std::endl;
+    }
+    else if (choice == 2)
+    {
+        std::cout << "å·²å–æ¶ˆæ¸…ç©ºã€‚" << std::endl;
+    }
+    else
+    {
+        std::cout << "è¾“å…¥æ— æ•ˆï¼Œå·²å–æ¶ˆæ¸…ç©ºã€‚" << std::endl;
+    }
 }
 
-WorkManager::~WorkManager()
+int WorkManager::findWorkerIndexById(int id) const
 {
-	if (this->workerArray != NULL)
-	{
-		delete[] this->workerArray;
-		this->workerArray = NULL;
-	}
+    for (std::size_t i = 0; i < workers.size(); ++i)
+    {
+        if (workers[i]->m_ID == id)
+        {
+            return static_cast<int>(i);
+        }
+    }
+    return -1;
+}
+
+bool WorkManager::idExists(int id) const
+{
+    return findWorkerIndexById(id) != -1;
+}
+
+std::unique_ptr<Worker> WorkManager::createWorker(int id, const std::string& name, int depId) const
+{
+    switch (depId)
+    {
+    case 1:
+        return std::make_unique<Boss>(id, name, depId);
+    case 2:
+        return std::make_unique<Manager>(id, name, depId);
+    case 3:
+        return std::make_unique<Employee>(id, name, depId);
+    default:
+        return nullptr;
+    }
 }
