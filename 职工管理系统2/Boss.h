@@ -9,7 +9,7 @@ public:
 
 	Boss(int id, string name, int depId);
 
-	virtual void showInfo() const;
+	virtual void showInfo();
 
-	virtual string getDepName() const;
+	virtual string getDepName();
 };

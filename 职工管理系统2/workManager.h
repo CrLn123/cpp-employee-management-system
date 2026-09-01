@@ -1,32 +1,49 @@
 #pragma once
-
-#include <memory>
+#include <iostream>
 #include <string>
-#include <vector>
+#include <fstream>
+using namespace std;
 
 #include "Worker.h"
+#include "Boss.h"
+#include "Manager.h"
+#include "Employee.h"
+
 
 class WorkManager
 {
 public:
-    WorkManager();
 
-    void Show_Menu() const;
-    void exitSystem() const;
-    void addWorker();
-    void showWorker() const;
-    void deleteWorker();
-    void changeWorker();
-    void findWorker() const;
-    void sortWorker();
-    void clearWorker();
+	WorkManager(); //
 
-private:
-    std::vector<std::unique_ptr<Worker>> workers;
+	void Show_Menu(); //展示菜单
 
-    void writeFile() const;
-    void readFile();
-    int findWorkerIndexById(int id) const;
-    bool idExists(int id) const;
-    std::unique_ptr<Worker> createWorker(int id, const std::string& name, int depId) const;
+	void exitSystem(); //退出系统
+
+	void addWorker(); //添加员工
+
+	void writeFile(); //写入文档
+
+	int getWorkerNum(); //获取职工数量
+
+	void readFile(); //读取文档
+
+	void showWorker();
+
+	void deleteWorker();
+
+	void changeWorker();
+
+	void findWorker();
+
+	void sortWorker();
+
+	void clearWorker();
+
+	int workerNum;
+	Worker** workerArray;
+
+	bool fileIsEmp;
+
+	~WorkManager();
 };

@@ -9,15 +9,15 @@ Employee::Employee(int id, string name, int depId)
 	this->m_DepId = depId;
 }
 
-void Employee::showInfo() const
+void Employee::showInfo()
 {
-	cout << "èŒå·¥ç¼–å·ï¼š" << this->m_ID
-		<< "\tèŒå·¥å§“åï¼š" << this->m_Name
-		<< "\tå²—ä½ï¼š" << this->getDepName()
-	    << "\tå²—ä½èŒåŠ¡ï¼šå®Œæˆç»ç†äº¤ç»™çš„ä»»åŠ¡" << endl;
+	cout << "Ö°¹¤±àºÅ£º" << this->m_ID
+		<< "\tÖ°¹¤ÐÕÃû£º" << this->m_Name
+		<< "\t¸ÚÎ»£º" << this->getDepName()
+	    << "\t¸ÚÎ»Ö°Îñ£ºÍê³É¾­Àí½»¸øµÄÈÎÎñ" << endl;
 }
 
-string Employee::getDepName() const
+string Employee::getDepName()
 {
-	return string("å‘˜å·¥");
+	return string("Ô±¹¤");
 }

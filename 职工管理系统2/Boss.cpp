@@ -8,15 +8,15 @@ Boss::Boss(int id, string name, int depId)
 	this->m_DepId = depId;
 }
 
-void Boss::showInfo() const
+void Boss::showInfo()
 {
-	cout << "èŒå·¥ç¼–å·ï¼š" << this->m_ID
-		<< "\tèŒå·¥å§“åï¼š" << this->m_Name
-		<< "\tå²—ä½ï¼š" << this->getDepName()
-		<< "\tå²—ä½èŒåŠ¡ï¼šç»™ç»ç†ä¸‹å‘ä»»åŠ¡" << endl;
+	cout << "Ö°¹¤±àºÅ£º" << this->m_ID
+		<< "\tÖ°¹¤ÐÕÃû£º" << this->m_Name
+		<< "\t¸ÚÎ»£º" << this->getDepName()
+		<< "\t¸ÚÎ»Ö°Îñ£º¸ø¾­ÀíÏÂ·¢ÈÎÎñ" << endl;
 }
 
-string Boss::getDepName() const
+string Boss::getDepName()
 {
-	return string("è€æ¿");
+	return string("ÀÏ°å");
 }
