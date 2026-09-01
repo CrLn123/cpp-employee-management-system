@@ -14,7 +14,7 @@ class WorkManager
 {
 public:
 
-	WorkManager();
+	WorkManager(); //
 
 	void Show_Menu(); //Õ¹Ê¾²Ëµ¥
 
