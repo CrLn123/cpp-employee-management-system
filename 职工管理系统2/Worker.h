@@ -7,6 +7,8 @@ using namespace std;
 class Worker
 {
 public:
+	// 通过 Worker* 删除派生类对象时，必须有虚析构函数。
+	virtual ~Worker() {}
 
 	virtual void showInfo() = 0;
 

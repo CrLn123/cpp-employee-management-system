@@ -14,7 +14,7 @@ class WorkManager
 {
 public:
 
-	WorkManager(); //
+	WorkManager();
 
 	void Show_Menu(); //展示菜单
 
@@ -39,6 +39,9 @@ public:
 	void sortWorker();
 
 	void clearWorker();
+
+	// 删除指定下标的对象，并把后面的指针前移。
+	void deleteWorkerByIndex(int index);
 
 	int workerNum;
 	Worker** workerArray;

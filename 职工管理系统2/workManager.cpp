@@ -166,7 +166,7 @@ void WorkManager::readFile()
 {
 	int num = getWorkerNum();
 
-	workerNum = getWorkerNum();
+	workerNum = num; // 前面已经读取过一次文件，不必重复读取。
 
 	workerArray = new Worker * [num];
 
@@ -223,120 +223,57 @@ void WorkManager::deleteWorker()
 	if (fileIsEmp)
 	{
 		cout << "暂无职工" << endl;
-		system("pause");
-		return;
-	}
-
-	cout << "你要删除几位职工：" << endl;
-	int num = 0;
-	cin >> num;
-	if (num > this->workerNum)
-	{
-		cout << "输入存在问题" << endl;
 		return;
 	}
 
 	cout << "请选择删除方式 1.通过ID删除 2.通过姓名删除" << endl;
 	int select = 0;
-	
-	FLAG1:
 	cin >> select;
-	switch (select)
+
+	int index = -1;
+	if (select == 1)
 	{
-	case 1:
-		for (int i = 1; i <= num; i++)
+		cout << "请输入要删除的职工ID" << endl;
+		int id = 0;
+		cin >> id;
+		for (int i = 0; i < workerNum; i++)
 		{
-			showWorker();
-			cout << "请输入第" << i << "个人的ID" << endl;
-			
-			int tempID = 0;
-			cin >> tempID;
-
-			int jc = 0;
-			for (int m = 0; m < workerNum; m++)
+			if (workerArray[i]->m_ID == id)
 			{
-				if (this->workerArray[m]->m_ID == tempID)
-				{				
-					jc++;
-				}
-			}
-			if (jc == 0)
-			{
-				cout << "不存在" << endl;
-				system("pause");
+				index = i;
 				break;
 			}
-
-			int n = 0;
-			Worker** newSpace = new Worker * [workerNum - 1];
-			for (int j = 0; j < workerNum; j++)
-			{
-				if (workerArray[j]->m_ID != tempID)
-				{
-					newSpace[n] = workerArray[j];
-					n++;
-				}
-			}
-			delete[] workerArray;
-			workerArray = newSpace;
-		    workerNum--;
 		}
-		
-		writeFile();
-		cout << "删除成功" << endl;
-		system("pause");
-		break;
-
-
-	case 2:
-		for (int i = 1; i <= num; i++)
-		{
-			showWorker();
-			cout << "请输入第" << i << "个人的姓名" << endl;
-
-			string tempName;
-			cin >> tempName;
-
-			int jc = 0;
-			for (int m = 0; m < workerNum; m++)
-			{
-				if (this->workerArray[m]->m_Name == tempName)
-				{
-					jc++;
-				}
-			}
-			if (jc == 0)
-			{
-				cout << "不存在" << endl;
-				system("pause");
-				break;
-			}
-
-			int n = 0;
-			Worker** newSpace = new Worker * [workerNum - 1];
-			for (int j = 0; j < workerNum; j++)
-			{
-				if (workerArray[j]->m_Name != tempName)
-				{
-					newSpace[n] = workerArray[j];
-					n++;
-				}
-			}
-			delete[] workerArray;
-			workerArray = newSpace;
-			workerNum--;
-		}
-
-		writeFile();
-		cout << "删除成功" << endl;
-		system("pause");
-		break;
-
-	default:
-		cout << "输入错误" << endl;
-		system("pause");
-		goto FLAG1;
 	}
+	else if (select == 2)
+	{
+		cout << "请输入要删除的职工姓名" << endl;
+		string name;
+		cin >> name;
+		for (int i = 0; i < workerNum; i++)
+		{
+			if (workerArray[i]->m_Name == name)
+			{
+				index = i; // 同名时只删除第一位，避免一次删掉多条记录。
+				break;
+			}
+		}
+	}
+	else
+	{
+		cout << "输入错误" << endl;
+		return;
+	}
+
+	if (index == -1)
+	{
+		cout << "不存在" << endl;
+		return;
+	}
+
+	deleteWorkerByIndex(index);
+	writeFile();
+	cout << "删除成功" << endl;
 }
 
 void WorkManager::changeWorker()
@@ -354,60 +291,55 @@ void WorkManager::changeWorker()
 	cin >> id;
 	
 
-	int jc = 0;
-	for (int m = 0; m < workerNum; m++)
-	{
-		if (this->workerArray[m]->m_ID == id)
-		{
-			jc++;
-		}
-	}
-	if (jc == 0)
-	{
-		cout << "不存在" << endl;
-		system("pause");
-		return;
-	}
-
-
-	for (int i = 0; i < this->workerNum; i++)
+	int index = -1;
+	for (int i = 0; i < workerNum; i++)
 	{
 		if (workerArray[i]->m_ID == id)
 		{
-			delete workerArray[i];
-			workerArray[i] = NULL;
-			cout << "请输入修改后ID" << endl;
-			int new_ID;
-			cin >> new_ID;
-			cout << "请输入修改后姓名" << endl;
-			string new_Name;
-			cin >> new_Name;
-			cout << "请输入修改后职位代码" << endl;
-			int new_depId;
-			cin >> new_depId;
-
-			if (new_depId == 1)
-			{
-				workerArray[i] = new Boss(new_ID, new_Name, new_depId);
-			}
-			if (new_depId == 2)
-			{
-				workerArray[i] = new Manager(new_ID, new_Name, new_depId);
-			}
-			if (new_depId == 3)
-			{
-				workerArray[i] = new Employee(new_ID, new_Name, new_depId);
-			}
-			else
-			{
-				cout << "输入错误" << endl;
-				return;
-			}
+			index = i;
+			break;
 		}
-		writeFile();
-		cout << "修改成功" << endl;
 	}
-	
+	if (index == -1)
+	{
+		cout << "不存在" << endl;
+		return;
+	}
+
+	// 先读取并校验新数据，确认无误后再删除旧对象。
+	cout << "请输入修改后ID" << endl;
+	int new_ID;
+	cin >> new_ID;
+	cout << "请输入修改后姓名" << endl;
+	string new_Name;
+	cin >> new_Name;
+	cout << "请输入修改后职位代码" << endl;
+	int new_depId;
+	cin >> new_depId;
+
+	Worker* newWorker = NULL;
+	if (new_depId == 1)
+	{
+		newWorker = new Boss(new_ID, new_Name, new_depId);
+	}
+	else if (new_depId == 2)
+	{
+		newWorker = new Manager(new_ID, new_Name, new_depId);
+	}
+	else if (new_depId == 3)
+	{
+		newWorker = new Employee(new_ID, new_Name, new_depId);
+	}
+	else
+	{
+		cout << "输入错误" << endl;
+		return;
+	}
+
+	delete workerArray[index];
+	workerArray[index] = newWorker;
+	writeFile();
+	cout << "修改成功" << endl;
 }
 
 void WorkManager::findWorker()
@@ -444,7 +376,7 @@ void WorkManager::findWorker()
 		}
 	}
 
-	if (select1 == 2)
+	else if (select1 == 2)
 	{
 		cout << "请输入姓名查找" << endl;
 		string u_Name;
@@ -546,10 +478,32 @@ void WorkManager::clearWorker()
 	
 }
 
+void WorkManager::deleteWorkerByIndex(int index)
+{
+	// 先释放真正被删除的对象，再移动后面的指针补上空位。
+	delete workerArray[index];
+	for (int i = index; i < workerNum - 1; i++)
+	{
+		workerArray[i] = workerArray[i + 1];
+	}
+
+	workerArray[workerNum - 1] = NULL;
+	workerNum--;
+	if (workerNum == 0)
+	{
+		fileIsEmp = true;
+	}
+}
+
 WorkManager::~WorkManager()
 {
 	if (this->workerArray != NULL)
 	{
+		// delete[] 只能释放指针数组，数组里的每个 Worker 也要单独释放。
+		for (int i = 0; i < workerNum; i++)
+		{
+			delete workerArray[i];
+		}
 		delete[] this->workerArray;
 		this->workerArray = NULL;
 	}
